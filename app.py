@@ -5,8 +5,7 @@ import joblib
 import pickle
 import folium
 from streamlit_folium import folium_static
-import matplotlib.pyplot as plt
-import seaborn as sns
+import plotly.express as px
 import json
 from folium.plugins import MarkerCluster
 import requests
@@ -347,37 +346,6 @@ with tab2:
         # Exibir o mapa
         folium_static(mapa)
         
-        # Interface para visualização de OpenStreetMap
-        st.subheader("Visualização Detalhada da Rua")
-        street_view_option = st.radio("Escolha um ponto para visualizar:", ["Origem", "Destino"])
-        
-        if street_view_option == "Origem":
-            lat, lon = origem_coords
-            location_name = origem
-        else:
-            lat, lon = destino_coords
-            location_name = destino
-        
-        # Utilizando iframe para mostrar o OpenStreetMap
-        osm_iframe = f"""
-        <div style="width: 100%; height: 400px;">
-            <iframe
-                width="100%"
-                height="100%"
-                frameborder="0" 
-                style="border:0"
-                src="https://www.openstreetmap.org/export/embed.html?bbox={lon-0.01}%2C{lat-0.01}%2C{lon+0.01}%2C{lat+0.01}&amp;layer=mapnik&amp;marker={lat}%2C{lon}"
-                allowfullscreen>
-            </iframe>
-        </div>
-        <p style="text-align: center; margin-top: 5px;"><small>Visualização em OpenStreetMap: {location_name}</small></p>
-        <p style="text-align: center; margin-top: 5px;"><a href="https://www.openstreetmap.org/?mlat={lat}&amp;mlon={lon}#map=16/{lat}/{lon}" target="_blank">Ver em tela cheia</a></p>
-        """
-        st.markdown(osm_iframe, unsafe_allow_html=True)
-        
-        # Observação importante sobre o OpenStreetMap
-        st.info("O OpenStreetMap é uma alternativa gratuita e de código aberto para visualização de mapas. Não requer nenhuma chave de API.")
-        
     else:
         st.info("Para gerar o mapa, vá para a aba 'Dados da Corrida', selecione os locais e clique em 'Calcular Distância e Preço'.")
 
@@ -387,65 +355,44 @@ with tab3:
     if "preco_previsto" in st.session_state:
         preco = st.session_state["preco_previsto"]
         
-        # Mostrar análise de fatores que influenciam o preço
-        st.subheader("Fatores que afetam o preço")
-        
         # Criar dados simulados para comparação
         comparacao = pd.DataFrame({
             'Fator': ['Distância', 'Surge', 'Tipo de serviço', 'Clima', 'Origem/Destino'],
             'Impacto': [0.4, 0.3, 0.15, 0.05, 0.1]  # Valores simulados
         })
         
-        # Criar gráfico de barras
-        fig, ax = plt.subplots(figsize=(10, 6))
-        sns.barplot(x='Impacto', y='Fator', data=comparacao, palette='viridis', ax=ax)
-        ax.set_title('Impacto dos fatores no preço')
-        ax.set_xlabel('Impacto relativo')
-        ax.set_ylabel('Fator')
-        st.pyplot(fig)
-        
-        # Distribuição de preços para corridas similares (simulado)
-        st.subheader("Distribuição de preços para corridas similares")
+        figcols = st.columns(2)
+
+        with figcols[0]:
+            # Criar gráfico de barras mostrando o impoacto vs fato
+            st.subheader('Fatores que afetam o preço')
+            fig  = px.bar(data_frame=comparacao, x='Impacto', y='Fator', color='Fator')
+            st.plotly_chart(fig)
         
         # Simulação de distribuição de preços similares
         precos_similares = np.random.normal(preco, preco * 0.15, 100)
         precos_similares = precos_similares[precos_similares > 0]
         
-        # Plotar histograma
-        fig2, ax2 = plt.subplots(figsize=(10, 6))
-        sns.histplot(precos_similares, kde=True, ax=ax2)
-        ax2.axvline(preco, color='red', linestyle='dashed', linewidth=2, label='Preço estimado')
-        ax2.set_title('Distribuição de preços para corridas similares')
-        ax2.set_xlabel('Preço (USD)')
-        ax2.set_ylabel('Frequência')
-        ax2.legend()
-        st.pyplot(fig2)
-        
-        # Comparação com outros serviços (simulado)
-        st.subheader("Comparação com outros serviços")
+        with figcols[1]:
+            # Plotar histograma
+            st.subheader('Distribuição de preços para corridas similares')
+            fig2 = px.histogram(x=precos_similares, nbins=20, color_discrete_sequence=['lightblue'])
+            fig2.update_layout(xaxis_title='Preço (USD)', yaxis_title='Frequência')
+            st.plotly_chart(fig2)
         
         servicos = pd.DataFrame({
             'Serviço': ['UberX', 'UberXL', 'UberBLACK', 'Lyft', 'Lyft XL', 'Lyft Lux'],
             'Preço Médio': [preco * 0.9, preco * 1.2, preco * 1.8, preco * 0.95, preco * 1.25, preco * 1.9]
         })
         
-        fig3, ax3 = plt.subplots(figsize=(10, 6))
-        bars = sns.barplot(x='Serviço', y='Preço Médio', data=servicos, palette='viridis', ax=ax3)
-        ax3.set_title('Comparação de preços entre serviços')
-        ax3.set_xlabel('Serviço')
-        ax3.set_ylabel('Preço médio (USD)')
-        
+        st.subheader('Comparação de preços entre serviços')
+        fig3 = px.bar(data_frame=servicos, x='Serviço', y='Preço Médio', color='Serviço')
+        fig3.update_layout(xaxis_title='Serviço', yaxis_title='Preço médio (USD)')
+
         # Adicionar rótulos de preço nas barras
-        for i, bar in enumerate(bars.patches):
-            bars.text(
-                bar.get_x() + bar.get_width()/2.,
-                bar.get_height() + 0.3,
-                f'${servicos["Preço Médio"].iloc[i]:.2f}',
-                ha='center',
-                va='bottom'
-            )
-        
-        st.pyplot(fig3)
+        fig3.update_traces(texttemplate='%{y:.2f}', textposition='outside')
+
+        st.plotly_chart(fig3)
     else:
         st.info("Para ver a análise de preços, primeiro calcule o preço na aba 'Dados da Corrida'.")
 
@@ -493,8 +440,6 @@ with st.sidebar.expander("O que é Target Encoding?"):
     - Reduzir dimensionalidade dos dados sem perder informações importantes
     """)
 
-st.sidebar.info("💡 Esta aplicação é um exemplo de como usar APIs de mapas gratuitas.")
-
 # Tutorial de como usar
 with st.sidebar.expander("Como usar"):
     st.write("""
@@ -504,3 +449,5 @@ with st.sidebar.expander("Como usar"):
     4. Vá para a aba **Visualização no Mapa** para ver a rota
     5. Use a aba **Análise** para explorar fatores que impactam o preço
     """)
+
+st.sidebar.info("💡 Esta aplicação é um exemplo de como funciona a tabela dinâmica de preços do uber.")
