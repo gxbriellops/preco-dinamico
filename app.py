@@ -6,8 +6,6 @@ import pickle
 import folium
 from streamlit_folium import folium_static
 import plotly.express as px
-import json
-from folium.plugins import MarkerCluster
 import requests
 from dotenv import load_dotenv
 import os
