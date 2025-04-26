@@ -1,5 +1,5 @@
 # Previsão de Preços do Uber e Lyft
-![ml app preview]()
+![ml app preview](https://github.com/gxbriellops/preco-dinamico/blob/main/Grava%C3%A7%C3%A3o-de-Tela-2025-04-26-115224.gif)
 ## Visão Geral
 Este projeto analisa dados de transporte compartilhado do Uber e Lyft em Boston, MA para construir um modelo de aprendizado de máquina que prevê preços de corridas com base em vários fatores como distância, multiplicador de preço dinâmico, condições climáticas e localização. O modelo alcança 96% de precisão na explicação das variações de preço com um erro médio de apenas $1,82.
 
