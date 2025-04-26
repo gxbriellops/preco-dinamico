@@ -1,0 +1,25 @@
+# Bibliotecas de análise de dados
+pandas==1.5.3
+numpy==1.24.3
+scikit-learn==1.3.0
+
+# Visualização de dados
+matplotlib==3.7.1
+seaborn==0.12.2
+plotly==5.15.0
+
+# Interface web e mapas
+streamlit==1.24.0
+folium==0.14.0
+streamlit-folium==0.11.0
+
+# Manipulação de modelos
+joblib==1.2.0
+pickle-mixin==1.0.2
+
+# Requisições e variáveis de ambiente
+requests==2.31.0
+python-dotenv==1.0.0
+
+# Bibliotecas opcionais para o processamento de dados geoespaciais
+geopy==2.3.0
