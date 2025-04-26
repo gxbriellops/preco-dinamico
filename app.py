@@ -183,7 +183,12 @@ with tab1:
         destination = st.selectbox("Destino", options=list(coordenadas.keys()))
         pressure = st.number_input("Pressão atmosférica", min_value=900.0, max_value=1100.0, value=1000.0, step=1.0)
         long_summary = st.selectbox("Descrição do clima", options=list(target_encoders["long_summary"].keys()))
-        name = st.selectbox("Nome do serviço", options=list(target_encoders["name"].keys()))
+        name_dict = {
+            'Uber': ['UberXL', 'Black', 'UberX', 'WAV', 'Black SUV', 'UberPool', 'Taxi'],
+            'Lyft': ['Shared', 'Lux', 'Lyft', 'Lux Black XL', 'Lyft XL', 'Lux Black']
+        }
+        servicos_disponiveis = name_dict[cab_type]
+        name = st.selectbox("Nome do serviço", options=servicos_disponiveis)
     
     # Multiplicador de preço dinâmico
     surge_multiplier = st.slider("Multiplicador de preço dinâmico", min_value=1.0, max_value=3.0, value=1.0, step=0.1)
